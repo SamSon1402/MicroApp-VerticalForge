@@ -1,0 +1,14 @@
+{
+  "source_micro_app_id": "ma-lvmh-onboarding-v3",
+  "target_industry": "retail",
+  "target_pack_name": "retail-onboarding",
+  "target_pack_version": "1.0.0",
+  "description": "Retail onboarding pack abstracted from LVMH custom build",
+  "governance": {
+    "oidc_per_tenant": true,
+    "rbac_inherit": true,
+    "audit_soc2": true,
+    "gdpr_eu_residency": true,
+    "rate_limit_per_tenant_per_min": 600
+  }
+}

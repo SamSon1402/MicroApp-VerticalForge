@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroApp-VerticalForge — Industry Pack Generator | LumApps AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #a855f7;
+            --primary-glow: rgba(168, 85, 247, 0.4);
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-dark: #0a0418;
+            --bg-card: #150a26;
+            --bg-elevated: #1f1233;
+            --text-primary: #f8fafc;
+            --text-secondary: #c4b5fd;
+            --text-muted: #7c6e94;
+            --border: #2d1f4a;
+            --forge-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f59e0b 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at 0% 0%, rgba(168, 85, 247, 0.14) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.04) 0%, transparent 70%);
+        }
+
+        .header {
+            background: linear-gradient(180deg, rgba(168, 85, 247, 0.06) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { display: flex; align-items: center; gap: 0.75rem; }
+        .logo-icon {
+            width: 46px;
+            height: 46px;
+            background: var(--forge-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            position: relative;
+        }
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: var(--forge-gradient);
+            border-radius: 14px;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(8px);
+        }
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--forge-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-subtitle {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 500;
+        }
+
+        .header-badges { display: flex; gap: 0.4rem; }
+        .badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-family: 'Fira Code', monospace;
+        }
+        .badge.live {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .badge.live::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: livePulse 1.5s ease-in-out infinite;
+        }
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--primary-glow); }
+            50% { opacity: 0.6; box-shadow: 0 0 0 8px transparent; }
+        }
+
+        .main { max-width: 1800px; margin: 0 auto; padding: 1.5rem 2rem; }
+        .hero { text-align: center; margin-bottom: 1.5rem; }
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+            background: var(--forge-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p { color: var(--text-secondary); font-size: 1rem; }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 1.25rem;
+        }
+        @media (max-width: 1300px) { .workspace { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(31, 18, 51, 0.6) 0%, transparent 100%);
+        }
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-body { padding: 1.25rem; }
+
+        /* Industry Selector */
+        .industry-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .industry-btn {
+            padding: 0.75rem 0.5rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .industry-btn:hover { border-color: var(--primary); transform: translateY(-1px); }
+        .industry-btn.active {
+            border-color: var(--primary);
+            background: rgba(168, 85, 247, 0.15);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+        }
+        .industry-emoji { font-size: 1.5rem; margin-bottom: 0.25rem; }
+        .industry-name { font-size: 0.75rem; font-weight: 600; }
+        .industry-customers {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+            margin-top: 0.15rem;
+        }
+
+        /* Forge Pipeline */
+        .forge-container {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .forge-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        .forge-container.forging::before {
+            animation: shimmer 2s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .forge-pipeline {
+            display: grid;
+            grid-template-columns: 1fr 40px 1fr 40px 1fr 40px 1fr;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .forge-stage {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 0.75rem;
+            text-align: center;
+            transition: all 0.4s;
+            position: relative;
+        }
+        .forge-stage.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 25px var(--primary-glow);
+            transform: scale(1.02);
+        }
+        .forge-stage.done {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.08);
+        }
+        .forge-stage-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.4rem;
+        }
+        .forge-stage-name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .forge-stage-meta {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+        }
+        .forge-arrow {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+        .forge-arrow.active {
+            color: var(--primary);
+            animation: arrowPulse 0.8s ease-in-out infinite;
+        }
+        @keyframes arrowPulse {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(4px); }
+        }
+
+        .forge-progress-wrap {
+            margin-top: 1rem;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            height: 6px;
+            overflow: hidden;
+        }
+        .forge-progress {
+            height: 100%;
+            background: var(--forge-gradient);
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        /* Micro-app Preview */
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .preview-pane {
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .preview-pane-header {
+            padding: 0.6rem 0.85rem;
+            background: var(--bg-dark);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+        }
+        .preview-pane-title {
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+        }
+        .preview-pane-tag {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+        .preview-pane-tag.custom {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+        .preview-pane-tag.pack {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        .preview-pane-body {
+            padding: 0.85rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.7rem;
+            min-height: 240px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+        .code-key { color: var(--secondary); }
+        .code-string { color: var(--success); }
+        .code-comment { color: var(--text-muted); font-style: italic; }
+        .code-highlight { background: rgba(168, 85, 247, 0.15); padding: 2px 4px; border-radius: 3px; }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+        .stat-tile {
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+        }
+        .stat-value.params { color: var(--primary); }
+        .stat-value.rules { color: var(--secondary); }
+        .stat-value.reuse { color: var(--accent); }
+        .stat-value.savings { color: var(--success); }
+        .stat-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.2rem;
+        }
+
+        /* Controls */
+        .controls { display: flex; gap: 0.5rem; }
+        .control-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .control-btn:hover {
+            border-color: var(--primary);
+            background: rgba(168, 85, 247, 0.1);
+        }
+        .control-btn.primary {
+            background: var(--forge-gradient);
+            border: none;
+        }
+        .control-btn.primary:hover { transform: translateY(-1px); }
+        .control-btn.active {
+            border-color: var(--primary);
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--primary);
+        }
+
+        /* Sidebar */
+        .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+        /* Governance */
+        .governance-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .governance-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .governance-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            background: rgba(168, 85, 247, 0.15);
+        }
+        .governance-info { flex: 1; }
+        .governance-name { font-size: 0.75rem; font-weight: 600; }
+        .governance-desc { font-size: 0.6rem; color: var(--text-muted); font-family: 'Fira Code', monospace; }
+        .toggle-switch {
+            width: 36px;
+            height: 20px;
+            background: var(--bg-dark);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .toggle-switch.on { background: var(--primary); }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.3s;
+        }
+        .toggle-switch.on::after { left: 18px; }
+
+        /* Template Library */
+        .template-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .template-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .template-item:hover {
+            border-color: var(--primary);
+            background: rgba(168, 85, 247, 0.05);
+        }
+        .template-emoji { font-size: 1.3rem; }
+        .template-info { flex: 1; }
+        .template-name { font-size: 0.75rem; font-weight: 600; }
+        .template-meta {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+        }
+        .template-badge {
+            padding: 0.15rem 0.4rem;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border-radius: 4px;
+            font-size: 0.55rem;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+        }
+
+        /* Processing Overlay */
+        .processing-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 4, 24, 0.97);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .processing-overlay.active { display: flex; }
+        .forge-animation {
+            width: 140px;
+            height: 140px;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .forge-spark {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            box-shadow: 0 0 12px var(--accent);
+            animation: sparkOrbit 2s linear infinite;
+        }
+        .forge-spark:nth-child(2) { animation-delay: -0.4s; background: var(--secondary); box-shadow: 0 0 12px var(--secondary); }
+        .forge-spark:nth-child(3) { animation-delay: -0.8s; background: var(--primary); box-shadow: 0 0 12px var(--primary); }
+        .forge-spark:nth-child(4) { animation-delay: -1.2s; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+        .forge-spark:nth-child(5) { animation-delay: -1.6s; background: var(--secondary); box-shadow: 0 0 12px var(--secondary); }
+        @keyframes sparkOrbit {
+            from { transform: rotate(0deg) translateX(55px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(55px) rotate(-360deg); }
+        }
+        .forge-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: var(--forge-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 0 40px var(--primary-glow);
+        }
+
+        .processing-text { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .processing-stage {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-family: 'Fira Code', monospace;
+        }
+        .processing-progress {
+            width: 320px;
+            height: 5px;
+            background: var(--bg-elevated);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .processing-bar {
+            height: 100%;
+            background: var(--forge-gradient);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.85rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-icon { font-size: 1.3rem; }
+        .toast-title { font-size: 0.85rem; font-weight: 600; }
+        .toast-message { font-size: 0.7rem; color: var(--text-muted); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🔨</div>
+                <div>
+                    <div class="logo-text">MicroApp-VerticalForge</div>
+                    <div class="logo-subtitle">LumApps Industry Pack Generator · FDE</div>
+                </div>
+            </div>
+            <div class="header-badges">
+                <span class="badge live">● Forge Online</span>
+                <span class="badge">Industry Pack</span>
+                <span class="badge">No-Code</span>
+                <span class="badge">FDE → R&amp;D Loop</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="hero">
+            <h1>🔨 Custom Build → Industry Vertical Pack</h1>
+            <p>Abstract one customer's bespoke Micro-app into a reusable, governed template — the FDE feedback loop that turns field code into scalable platform value</p>
+        </div>
+
+        <div class="workspace">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🎨 Forge Workspace</h3>
+                    <span style="font-size: 0.7rem; color: var(--text-muted); font-family: 'Fira Code';">Source: LVMH · HR Onboarding Micro-app</span>
+                </div>
+                <div class="card-body">
+                    <div class="industry-row">
+                        <div class="industry-btn active" data-industry="retail" onclick="selectIndustry('retail')">
+                            <div class="industry-emoji">🛍️</div>
+                            <div class="industry-name">Retail</div>
+                            <div class="industry-customers">12 customers</div>
+                        </div>
+                        <div class="industry-btn" data-industry="hospitality" onclick="selectIndustry('hospitality')">
+                            <div class="industry-emoji">🏨</div>
+                            <div class="industry-name">Hospitality</div>
+                            <div class="industry-customers">8 customers</div>
+                        </div>
+                        <div class="industry-btn" data-industry="manufacturing" onclick="selectIndustry('manufacturing')">
+                            <div class="industry-emoji">🏭</div>
+                            <div class="industry-name">Manufacturing</div>
+                            <div class="industry-customers">15 customers</div>
+                        </div>
+                        <div class="industry-btn" data-industry="tech" onclick="selectIndustry('tech')">
+                            <div class="industry-emoji">💼</div>
+                            <div class="industry-name">Technology</div>
+                            <div class="industry-customers">21 customers</div>
+                        </div>
+                    </div>
+
+                    <div class="forge-container" id="forgeContainer">
+                        <div class="forge-pipeline">
+                            <div class="forge-stage" id="stage-1">
+                                <div class="forge-stage-icon">📥</div>
+                                <div class="forge-stage-name">Ingest</div>
+                                <div class="forge-stage-meta">custom.tsx</div>
+                            </div>
+                            <div class="forge-arrow" id="arrow-1">→</div>
+                            <div class="forge-stage" id="stage-2">
+                                <div class="forge-stage-icon">🔍</div>
+                                <div class="forge-stage-name">Abstract</div>
+                                <div class="forge-stage-meta">AST · LLM</div>
+                            </div>
+                            <div class="forge-arrow" id="arrow-2">→</div>
+                            <div class="forge-stage" id="stage-3">
+                                <div class="forge-stage-icon">🛡️</div>
+                                <div class="forge-stage-name">Govern</div>
+                                <div class="forge-stage-meta">RBAC · Audit</div>
+                            </div>
+                            <div class="forge-arrow" id="arrow-3">→</div>
+                            <div class="forge-stage" id="stage-4">
+                                <div class="forge-stage-icon">📦</div>
+                                <div class="forge-stage-name">Pack</div>
+                                <div class="forge-stage-meta">Vertical v1.0</div>
+                            </div>
+                        </div>
+                        <div class="forge-progress-wrap">
+                            <div class="forge-progress" id="forgeProgress"></div>
+                        </div>
+                    </div>
+
+                    <div class="preview-container">
+                        <div class="preview-pane">
+                            <div class="preview-pane-header">
+                                <span class="preview-pane-title">input/custom-microapp.tsx</span>
+                                <span class="preview-pane-tag custom">CUSTOM · 1 customer</span>
+                            </div>
+                            <div class="preview-pane-body" id="inputPreview"><span class="code-comment">// Hardcoded for LVMH Sales onboarding</span>
+<span class="code-key">const</span> onboard = (emp) => {
+  <span class="code-key">await</span> workday.post(
+    <span class="code-string">"https://lvmh.workday.com"</span>,
+    { id: emp.id, dept: <span class="code-string">"SALES-EU"</span> }
+  );
+  <span class="code-key">await</span> servicenow.create(
+    <span class="code-string">"LVMH-IT-Equip-Req"</span>,
+    { laptop: <span class="code-string">"MacBook Pro M3"</span> }
+  );
+  <span class="code-key">await</span> sendTeams(
+    <span class="code-string">"team-lvmh-sales-fr"</span>,
+    welcomeMsg
+  );
+  <span class="code-comment">// 240 lines of customer-specific glue</span>
+};</div>
+                        </div>
+                        <div class="preview-pane">
+                            <div class="preview-pane-header">
+                                <span class="preview-pane-title">output/retail-onboarding.pack</span>
+                                <span class="preview-pane-tag pack">VERTICAL PACK · reusable</span>
+                            </div>
+                            <div class="preview-pane-body" id="outputPreview"><span class="code-comment">// Forge output: pending...</span>
+
+  ⏳ Awaiting forge run
+
+  Click <span class="code-highlight">Forge Vertical Pack</span> below
+  to abstract this custom build
+  into a reusable template
+  that ships across all
+  <span class="code-string">12 retail customers</span> on
+  LumApps Agent Hub.</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-bar">
+                        <div class="stat-tile">
+                            <div class="stat-value params" id="paramsValue">0</div>
+                            <div class="stat-label">Parameters Extracted</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-value rules" id="rulesValue">0</div>
+                            <div class="stat-label">Governance Rules</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-value reuse" id="reuseValue">0</div>
+                            <div class="stat-label">Customers Ready</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-value savings" id="savingsValue">€0</div>
+                            <div class="stat-label">Deploy Cost Saved</div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="control-btn primary" id="forgeBtn" onclick="runForge()">
+                            <span id="forgeIcon">🔨</span>
+                            <span id="forgeText">Forge Vertical Pack</span>
+                        </button>
+                        <button class="control-btn" onclick="resetForge()">🔄 Reset</button>
+                        <button class="control-btn" onclick="publishPack()">📤 Publish to Hub</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🛡️ Governance Config</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="governance-list">
+                            <div class="governance-item">
+                                <div class="governance-icon">🔐</div>
+                                <div class="governance-info">
+                                    <div class="governance-name">OIDC / OAuth 2.0</div>
+                                    <div class="governance-desc">Per-tenant SSO config</div>
+                                </div>
+                                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                            </div>
+                            <div class="governance-item">
+                                <div class="governance-icon">👥</div>
+                                <div class="governance-info">
+                                    <div class="governance-name">Role-Based Access</div>
+                                    <div class="governance-desc">RBAC inheritance</div>
+                                </div>
+                                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                            </div>
+                            <div class="governance-item">
+                                <div class="governance-icon">📊</div>
+                                <div class="governance-info">
+                                    <div class="governance-name">Audit Logging</div>
+                                    <div class="governance-desc">SOC 2 compliant</div>
+                                </div>
+                                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                            </div>
+                            <div class="governance-item">
+                                <div class="governance-icon">🌍</div>
+                                <div class="governance-info">
+                                    <div class="governance-name">GDPR Data Residency</div>
+                                    <div class="governance-desc">EU-only by default</div>
+                                </div>
+                                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                            </div>
+                            <div class="governance-item">
+                                <div class="governance-icon">🚦</div>
+                                <div class="governance-info">
+                                    <div class="governance-name">Rate Limiting</div>
+                                    <div class="governance-desc">Per-customer quotas</div>
+                                </div>
+                                <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📚 Pack Library</h3>
+                        <span style="font-size: 0.65rem; color: var(--text-muted); font-family: 'Fira Code';">8 packs · v1.4</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="template-list">
+                            <div class="template-item">
+                                <div class="template-emoji">🛍️</div>
+                                <div class="template-info">
+                                    <div class="template-name">Retail · Onboarding</div>
+                                    <div class="template-meta">12 deploys · 4.9★</div>
+                                </div>
+                                <div class="template-badge">GA</div>
+                            </div>
+                            <div class="template-item">
+                                <div class="template-emoji">🏨</div>
+                                <div class="template-info">
+                                    <div class="template-name">Hospitality · Shift Swap</div>
+                                    <div class="template-meta">8 deploys · 4.7★</div>
+                                </div>
+                                <div class="template-badge">GA</div>
+                            </div>
+                            <div class="template-item">
+                                <div class="template-emoji">🏭</div>
+                                <div class="template-info">
+                                    <div class="template-name">Mfg · Safety Incidents</div>
+                                    <div class="template-meta">15 deploys · 4.8★</div>
+                                </div>
+                                <div class="template-badge">GA</div>
+                            </div>
+                            <div class="template-item">
+                                <div class="template-emoji">💼</div>
+                                <div class="template-info">
+                                    <div class="template-name">Tech · IT Asset Mgmt</div>
+                                    <div class="template-meta">21 deploys · 4.9★</div>
+                                </div>
+                                <div class="template-badge">GA</div>
+                            </div>
+                            <div class="template-item">
+                                <div class="template-emoji">🛍️</div>
+                                <div class="template-info">
+                                    <div class="template-name">Retail · Knowledge RAG</div>
+                                    <div class="template-meta">3 deploys · early</div>
+                                </div>
+                                <div class="template-badge" style="background: rgba(245,158,11,0.15); color: var(--accent); border: 1px solid var(--accent);">BETA</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📈 ROI Impact</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <div style="background: var(--bg-elevated); padding: 0.85rem; border-radius: 10px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); font-family: 'Fira Code';">10×</div>
+                                <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Faster vs build</div>
+                            </div>
+                            <div style="background: var(--bg-elevated); padding: 0.85rem; border-radius: 10px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--secondary); font-family: 'Fira Code';">3d</div>
+                                <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Avg deploy time</div>
+                            </div>
+                            <div style="background: var(--bg-elevated); padding: 0.85rem; border-radius: 10px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent); font-family: 'Fira Code';">56</div>
+                                <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Total deploys</div>
+                            </div>
+                            <div style="background: var(--bg-elevated); padding: 0.85rem; border-radius: 10px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success); font-family: 'Fira Code';">94%</div>
+                                <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Reuse rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="processing-overlay" id="processingOverlay">
+        <div class="forge-animation">
+            <div class="forge-spark"></div>
+            <div class="forge-spark"></div>
+            <div class="forge-spark"></div>
+            <div class="forge-spark"></div>
+            <div class="forge-spark"></div>
+            <div class="forge-core">🔨</div>
+        </div>
+        <div class="processing-text">Forging Vertical Pack...</div>
+        <div class="processing-stage" id="processingStage">Parsing source Micro-app AST...</div>
+        <div class="processing-progress">
+            <div class="processing-bar" id="processingBar"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span class="toast-icon">✅</span>
+        <div>
+            <div class="toast-title" id="toastTitle">Success!</div>
+            <div class="toast-message" id="toastMessage">Pack forged</div>
+        </div>
+    </div>
+
+    <script>
+        let isForging = false;
+        let currentIndustry = 'retail';
+
+        const industryData = {
+            retail: { customers: 12, name: 'Retail', src: 'LVMH · HR Onboarding Micro-app' },
+            hospitality: { customers: 8, name: 'Hospitality', src: 'Accor · Shift Swap Micro-app' },
+            manufacturing: { customers: 15, name: 'Manufacturing', src: 'Schneider · Safety Incident Micro-app' },
+            tech: { customers: 21, name: 'Technology', src: 'Atos · IT Asset Mgmt Micro-app' }
+        };
+
+        function selectIndustry(industry) {
+            currentIndustry = industry;
+            document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-industry="${industry}"]`).classList.add('active');
+            const data = industryData[industry];
+            document.querySelector('.card-header [style*="text-muted"]').textContent = `Source: ${data.src}`;
+            showToast('🎯 Industry Selected', `${data.name} · ${data.customers} target customers`);
+        }
+
+        function runForge() {
+            if (isForging) {
+                showToast('⏳ Already Forging', 'Wait for completion');
+                return;
+            }
+            resetForge(true);
+
+            const overlay = document.getElementById('processingOverlay');
+            const bar = document.getElementById('processingBar');
+            const stage = document.getElementById('processingStage');
+
+            overlay.classList.add('active');
+            document.getElementById('forgeContainer').classList.add('forging');
+
+            const stages = [
+                'Parsing source Micro-app AST...',
+                'Identifying customer-specific parameters...',
+                'Abstracting hardcoded values to template vars...',
+                'Generating OIDC config schema...',
+                'Applying RBAC governance layer...',
+                'Building Industry Vertical Pack manifest...',
+                'Signing pack · uploading to registry...'
+            ];
+
+            let progress = 0;
+            let stageIndex = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 14 + 6;
+                if (progress > 100) progress = 100;
+                bar.style.width = progress + '%';
+                const newStage = Math.floor((progress / 100) * stages.length);
+                if (newStage !== stageIndex && newStage < stages.length) {
+                    stageIndex = newStage;
+                    stage.textContent = stages[stageIndex];
+                }
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        overlay.classList.remove('active');
+                        runPipeline();
+                    }, 400);
+                }
+            }, 110);
+        }
+
+        function runPipeline() {
+            isForging = true;
+            document.getElementById('forgeIcon').textContent = '⚙️';
+            document.getElementById('forgeText').textContent = 'Forging...';
+            document.getElementById('forgeBtn').classList.add('active');
+
+            const stages = ['stage-1', 'stage-2', 'stage-3', 'stage-4'];
+            const arrows = ['arrow-1', 'arrow-2', 'arrow-3'];
+            const progressTarget = document.getElementById('forgeProgress');
+
+            let i = 0;
+            const step = setInterval(() => {
+                if (i >= stages.length) {
+                    clearInterval(step);
+                    finishForge();
+                    return;
+                }
+                if (i > 0) {
+                    document.getElementById(stages[i-1]).classList.remove('active');
+                    document.getElementById(stages[i-1]).classList.add('done');
+                    document.getElementById(arrows[i-1]).classList.remove('active');
+                }
+                document.getElementById(stages[i]).classList.add('active');
+                if (i < arrows.length) document.getElementById(arrows[i]).classList.add('active');
+                progressTarget.style.width = ((i + 1) / stages.length * 100) + '%';
+
+                // Increment stats progressively
+                if (i === 1) {
+                    animateNumber('paramsValue', 0, 14, 800);
+                } else if (i === 2) {
+                    animateNumber('rulesValue', 0, 8, 800);
+                } else if (i === 3) {
+                    animateNumber('reuseValue', 0, industryData[currentIndustry].customers, 1000);
+                    animateNumber('savingsValue', 0, industryData[currentIndustry].customers * 12500, 1200, '€', true);
+                    renderOutput();
+                }
+                i++;
+            }, 1100);
+        }
+
+        function animateNumber(id, from, to, duration, prefix = '', isCurrency = false) {
+            const el = document.getElementById(id);
+            const start = performance.now();
+            const frame = (now) => {
+                const t = Math.min((now - start) / duration, 1);
+                const val = Math.floor(from + (to - from) * t);
+                el.textContent = isCurrency ? prefix + val.toLocaleString('en-US') : prefix + val;
+                if (t < 1) requestAnimationFrame(frame);
+            };
+            requestAnimationFrame(frame);
+        }
+
+        function renderOutput() {
+            const ind = industryData[currentIndustry];
+            document.getElementById('outputPreview').innerHTML = `<span class="code-comment">// Generated Vertical Pack v1.0</span>
+<span class="code-key">name:</span> <span class="code-string">"${ind.name.toLowerCase()}-onboarding"</span>
+<span class="code-key">version:</span> <span class="code-string">"1.0.0"</span>
+<span class="code-key">params:</span>
+  - <span class="code-highlight">tenant_workday_url</span>
+  - <span class="code-highlight">cost_center_code</span>
+  - <span class="code-highlight">it_equipment_sku</span>
+  - <span class="code-highlight">comms_channel_id</span>
+<span class="code-key">governance:</span>
+  oidc: <span class="code-string">tenant-scoped</span>
+  rbac: <span class="code-string">role-inherit</span>
+  audit: <span class="code-string">soc2</span>
+  gdpr: <span class="code-string">eu-residency</span>
+<span class="code-key">deploys:</span> <span class="code-highlight">${ind.customers}× ready</span>`;
+        }
+
+        function finishForge() {
+            isForging = false;
+            document.getElementById('stage-4').classList.add('done');
+            document.getElementById('forgeContainer').classList.remove('forging');
+            document.getElementById('forgeIcon').textContent = '✨';
+            document.getElementById('forgeText').textContent = 'Forge Again';
+            document.getElementById('forgeBtn').classList.remove('active');
+            showToast('✨ Pack Forged', `${industryData[currentIndustry].name} pack ready · ${industryData[currentIndustry].customers} deploys queued`);
+        }
+
+        function publishPack() {
+            if (isForging) {
+                showToast('⏳ Wait', 'Forge in progress');
+                return;
+            }
+            if (document.getElementById('paramsValue').textContent === '0') {
+                showToast('⚠️ Nothing to Publish', 'Run forge first');
+                return;
+            }
+            showToast('📤 Published to Hub', 'Live for all customers — FDE → R&D loop closed');
+        }
+
+        function resetForge(quiet) {
+            isForging = false;
+            ['stage-1', 'stage-2', 'stage-3', 'stage-4'].forEach(id => {
+                document.getElementById(id).classList.remove('active', 'done');
+            });
+            ['arrow-1', 'arrow-2', 'arrow-3'].forEach(id => {
+                document.getElementById(id).classList.remove('active');
+            });
+            document.getElementById('forgeProgress').style.width = '0%';
+            document.getElementById('paramsValue').textContent = '0';
+            document.getElementById('rulesValue').textContent = '0';
+            document.getElementById('reuseValue').textContent = '0';
+            document.getElementById('savingsValue').textContent = '€0';
+            document.getElementById('forgeIcon').textContent = '🔨';
+            document.getElementById('forgeText').textContent = 'Forge Vertical Pack';
+            document.getElementById('outputPreview').innerHTML = `<span class="code-comment">// Forge output: pending...</span>
+
+  ⏳ Awaiting forge run
+
+  Click <span class="code-highlight">Forge Vertical Pack</span> below
+  to abstract this custom build
+  into a reusable template
+  that ships across all
+  <span class="code-string">${industryData[currentIndustry].customers} ${industryData[currentIndustry].name.toLowerCase()} customers</span> on
+  LumApps Agent Hub.`;
+            if (!quiet) showToast('🔄 Reset', 'Forge cleared');
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+    </script>
+</body>
+</html>
